@@ -1,8 +1,9 @@
 import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 
-app = FastAPI()
+app = FastAPI(title="NFT Site Backend")
 
 app.add_middleware(
     CORSMiddleware,
@@ -12,13 +13,43 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+
+class CollectionInfo(BaseModel):
+    name: str
+    description: str
+    network: str
+    contract_address: str
+    opensea_url: str
+    lazy_minting: bool
+
+
+COLLECTION_DATA = CollectionInfo(
+    name="The Clucker's Collective",
+    description=(
+        "An exclusive digital art project reimagining the comical poultry experience for the Web3 world. "
+        "Built with Lazy Minting to maximize accessibility and efficiency."
+    ),
+    network="Polygon",
+    contract_address="0x20a0cc3d86a6fbf803d4b448b200df3288a9104b",
+    opensea_url="https://opensea.io/collection/the-cluckers-collective",
+    lazy_minting=True,
+)
+
+
 @app.get("/")
 def read_root():
     return {"message": "Hello from FastAPI Backend!"}
 
+
 @app.get("/api/hello")
 def hello():
     return {"message": "Hello from the backend API!"}
+
+
+@app.get("/api/collection", response_model=CollectionInfo)
+def get_collection_info():
+    return COLLECTION_DATA
+
 
 @app.get("/test")
 def test_database():
